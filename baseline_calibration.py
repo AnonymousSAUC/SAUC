@@ -1,4 +1,5 @@
 from scipy.stats import norm
+from tqdm import tqdm
 from scipy.optimize import minimize
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
@@ -75,3 +76,41 @@ def calibrate_regression(mean_val, variance_val, true_val, mean_test, variance_t
         return calibrate_histogram(mean_val, variance_val, true_val, mean_test, variance_test, true_test)
     else:
         raise ValueError("Invalid method. Must be 'temperature', 'isotonic', 'platt', 'histogram', or 'beta'.")
+    
+    
+def apply_calibration_methods(intervals, crash_nb_mu, crash_nb_true, crash_nb_var, methods=['temperature', 'isotonic', 'platt', 'histogram']):
+    
+    calib_results = {}
+
+    for method in tqdm(methods, total=len(methods)):
+        calib_results[method] = {}
+        for interval in intervals:
+            stgcn_crash_nb_mu = crash_nb_mu[interval]
+            stgcn_crash_true = crash_nb_true[interval]
+            stgcn_crash_nb_var = crash_nb_var[interval]
+            
+            # Split data into validation and test sets
+            split_index = int(len(stgcn_crash_nb_mu) * 0.4)
+            val_mu, test_mu = stgcn_crash_nb_mu[:split_index], stgcn_crash_nb_mu[split_index:]
+            val_true, test_true = stgcn_crash_true[:split_index], stgcn_crash_true[split_index:]
+            val_var, test_var = stgcn_crash_nb_var[:split_index], stgcn_crash_nb_var[split_index:]
+
+            # Flatten the data for calibration
+            val_mu_flat, test_mu_flat = val_mu.flatten(), test_mu.flatten()
+            val_true_flat, test_true_flat = val_true.flatten(), test_true.flatten()
+            val_var_flat, test_var_flat = val_var.flatten(), test_var.flatten()
+            
+            # Apply calibration
+            mean_calib, var_calib = calibrate_regression(val_mu_flat, val_var_flat, val_true_flat, 
+                                                         test_mu_flat, test_var_flat, test_true_flat, 
+                                                         method=method)
+
+            # Reshape the calibrated data back to original shape and assign to the whole data
+            calibrated_mu = stgcn_crash_nb_mu.copy()
+            calibrated_var = stgcn_crash_nb_var.copy()
+            calibrated_mu[split_index:] = mean_calib.reshape(test_mu.shape)
+            calibrated_var[split_index:] = var_calib.reshape(test_var.shape)
+
+            calib_results[method][interval] = {'mean': calibrated_mu, 'var': calibrated_var}
+
+    return calib_results
