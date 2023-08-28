@@ -2,10 +2,6 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-# Import calibration module
-import sys
-sys.path.append('../')
-from calibration_block import STCalibration
 
 class TimeBlock(nn.Module):
     """
@@ -174,72 +170,6 @@ class STGCN_Mean_Variance(nn.Module):
         out4_variance = self.fully_var(out3.reshape((out3.shape[0], out3.shape[1], -1)))
         return out4_mean, F.softplus(out4_variance)
     
-class STGCN_Calib(nn.Module):
-    """
-    Spatio-temporal graph convolutional network as described in
-    https://arxiv.org/abs/1709.04875v3 by Yu et al.
-    Input should have shape (batch_size, num_nodes, num_input_time_steps,
-    num_features).
-    """
-
-    def __init__(self, num_nodes, num_features, num_timesteps_input,
-                 num_timesteps_output):
-        """
-        :param num_nodes: Number of nodes in the graph.
-        :param num_features: Number of features at each node in each time step.
-        :param num_timesteps_input: Number of past time steps fed into the
-        network.
-        :param num_timesteps_output: Desired number of future time steps
-        output by the network.
-        """
-        super(STGCN_Calib, self).__init__()
-        self.block1 = STGCNBlock(in_channels=num_features, out_channels=64,
-                                 spatial_channels=16, num_nodes=num_nodes)
-        self.block2 = STGCNBlock(in_channels=64, out_channels=64,
-                                 spatial_channels=16, num_nodes=num_nodes)
-        self.last_temporal = TimeBlock(in_channels=64, out_channels=64)
-        self.fully_mean = nn.Linear((num_timesteps_input - 2 * 5) * 64,
-                               num_timesteps_output)
-        self.fully_var = nn.Linear((num_timesteps_input - 2 * 5) * 64,
-                               num_timesteps_output)
-        self.calib = STCalibration(feature_size=num_nodes,num_heads=3)
-
-    def forward(self, A_hat, X):
-        """
-        :param X: Input data of shape (batch_size, num_nodes, num_timesteps,
-        num_features=in_channels).
-        :param A_hat: Normalized adjacency matrix.
-        """
-        out1 = self.block1(X, A_hat)
-        out2 = self.block2(out1, A_hat)
-        out3 = self.last_temporal(out2)
-        # Rewrite the fully connected layer to output mean and variance instead of the numerical values
-        out4_mean     = self.fully_mean(out3.reshape((out3.shape[0], out3.shape[1], -1)))
-        out4_variance = self.fully_var(out3.reshape((out3.shape[0], out3.shape[1], -1)))
-        return self.calib(out4_mean, F.softplus(out4_variance))
-
-class STGCN_Classification(nn.Module):
-    def __init__(self, num_nodes, num_features, num_timesteps_input,
-                 num_timesteps_output):
-        super(STGCN_Classification, self).__init__()
-        self.block1 = STGCNBlock(in_channels=num_features, out_channels=64,
-                                 spatial_channels=16, num_nodes=num_nodes)
-        self.block2 = STGCNBlock(in_channels=64, out_channels=64,
-                                 spatial_channels=16, num_nodes=num_nodes)
-        self.last_temporal = TimeBlock(in_channels=64, out_channels=64)
-        self.fully = nn.Linear((num_timesteps_input - 2 * 5) * 64,
-                               num_timesteps_output * 6)  # Changed to output 6 classes for each time step
-        self.softmax = nn.Softmax(dim=3)  # Add softmax layer
-
-    def forward(self, A_hat, X):
-        out1 = self.block1(X, A_hat)
-        out2 = self.block2(out1, A_hat)
-        out3 = self.last_temporal(out2)
-        out4 = self.fully(out3.reshape((out3.shape[0], out3.shape[1], -1)))
-        out4 = out4.view(out4.shape[0], out4.shape[1], -1, 6)  # Reshape so that the last dimension contains 6 class scores
-        out5 = self.softmax(out4)  # Apply softmax to convert to probabilities
-        return out5
-
 class STGCN_NegativeBinomial(nn.Module):
     """
     Spatio-temporal graph convolutional network adapted for output

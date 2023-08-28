@@ -14,8 +14,7 @@ wait_for_jobs() {
 
 # Define intervals and scripts
 intervals=("1w" "daily" "8h" "1h" )
-# scripts=("main_nb.py")
-scripts=("main.py")
+scripts=("main.py" "main_nb.py")
 
 # --------------- TRAINING PROCESSES ------------------
 
@@ -46,8 +45,7 @@ wait
 # --------------- TESTING PROCESSES ------------------
 
 # Update scripts for testing processes
-# scripts=("test.py" "test_nb.py")
-scripts=("test.py")
+scripts=("test.py" "test_nb.py")
 
 for seed in 3; do
     for interval in ${intervals[@]}; do

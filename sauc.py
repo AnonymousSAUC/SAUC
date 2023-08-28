@@ -38,11 +38,11 @@ def calibrate_model(mu, var, y, upper, lower, split_index, bin_num=10):
 
     for i in tqdm(range(bin_num)):
         # Get indices for current bin
-        # bin_indices = (val_y_flat >= bins[i]) & (val_y_flat <= bins[i+1])
+        bin_indices = (val_y_flat >= bins[i]) & (val_y_flat <= bins[i+1])
 
         # Separate zero and non-zero indices for validation set
-        val_zero_indices = (val_mu_flat<0.5) #& bin_indices
-        val_non_zero_indices = (val_mu_flat>=0.5) #& bin_indices
+        val_zero_indices = (val_mu_flat<0.5) & bin_indices
+        val_non_zero_indices = (val_mu_flat>=0.5) & bin_indices
 
         # Separate zero and non-zero indices for test set
         test_zero_indices = (test_mu_flat<0.5)
