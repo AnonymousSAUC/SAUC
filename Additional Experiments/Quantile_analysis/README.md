@@ -1,7 +1,9 @@
 We show the comparison of coverage of quantiles before and after the calibration. The coverage is calculated as how many points fall within the confidence interval, following the same notation schema from the manuscript, it is written as:
+
+```math
+$Coverage_{0.05-0.95}  = \frac{1}{|U|} \sum_{i \in U} 1_{(y_i \geq \hat{F}_i^{-1}(0.05) \& (y_i \leq \hat{F}_i^{-1}(0.95)) )} \approx 0.9 
 ```
-$Coverage_{0.05-0.95}  = \frac{1}{|U|} \sum_{i \in U} 1_{(y_i \geq \hat{F}_i^{-1}(0.05) \& (y_i \leq \hat{F}_i^{-1}(0.95)) )} \approx 0.9 $
-```
+
 where $\hat{F}_i^{-1}(0.05)$ and $\hat{F}_i^{-1}(0.95)$ are the predicted confidence intervals, which is obtained from the model output or the calibrated model output. We expect the portion true data from the test set that fall within the 5%-95% confidence should be approximated to 0.9.
 
 To have the monotonic comparison, we use the metrics:
