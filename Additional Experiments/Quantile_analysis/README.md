@@ -21,3 +21,5 @@ We compare the metric $C^*$ using the confidence interval outputed by STGCN-NB b
 |  CTC_8h | 0.313  |  0.128 | 
 |  CTC_1d | 0.316  |  0.129 | 
 |  CTC_1w | 0.463  |  0.140 | 
+
+Generally speaking, the calibrated confidence interval can better cover the data variability, as demonstrated by the significant decreasing in the metric $C^*$.
