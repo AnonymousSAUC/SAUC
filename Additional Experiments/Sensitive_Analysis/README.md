@@ -40,4 +40,4 @@ From Table 1 and 2, we can find that the bins have the impacts. Both smaller bin
 It is intuitve to understand. For example, if there is only one bin, all the data points fall within the same bin, thus we capare the average data variability with the average MPIW using all the data. It is hard to differentiate different levels of difference. On the other hand, if only few data points lie witin the bin, the results will also be fluctuating due to few data samples. Therefore, bin number between 10 and 20 is preferrable.
 
 # Runtime discussion
-The complextity of the algorithm is proportionally depends on the size of data. From the runtime table, you could see that by reducing the resoultion from 1hour to 8hour, 1day, and 1week, the runtime drops nearly proportionally to the resolution change.
+The complexity of the algorithm proportionally depends on the size of the data. From the runtime table, you could see that by reducing the resolution from 1hour to 8 hours, 1day, and 1 week, the runtime drops nearly proportionally to the resolution change.
