@@ -15,7 +15,7 @@ Table 1: ENCE on the full observations with respect to different bin numbers.
 
 ---
 
-Table 2: ENCE on the full observations with respect to different bin numbers.
+Table 2: ENCE on the zero-only observations with respect to different bin numbers.
 | dataset/bin number  | 1  | 5 | 10  | 15  | 20 | 25 |  
 |---|---|---|---|---|---|---|
 |  CCR_1h | 0.650  |  0.689 |  0.604 | 0.267 |  0.229 | 0.501  |
