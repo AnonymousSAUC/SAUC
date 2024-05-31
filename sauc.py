@@ -3,7 +3,7 @@ import statsmodels.api as sm
 from statsmodels.regression.quantile_regression import QuantReg
 import numpy as np
 
-def calibrate_model(mu, var, y, upper, lower, split_index, bin_num=10):
+def calibrate_model(mu, var, y, upper, lower, split_index, bin_num=15):
     # Split data into validation and test sets
     val_mu, test_mu = mu[:split_index], mu[split_index:]
     val_var, test_var = var[:split_index], var[split_index:]
